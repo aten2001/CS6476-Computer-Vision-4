@@ -3,9 +3,9 @@ Assignments as part of CS 6476 at GeorgiaTech under Dr. James Hays in Fall 2017
 
 ## Course Links
 
-Course page : https://www.cc.gatech.edu/~hays/compvision/
+### Course page : https://www.cc.gatech.edu/~hays/compvision/
 
-Project links:
+### Project links:
 
 Project 1: https://www.cc.gatech.edu/~hays/compvision/proj1/
 
@@ -19,7 +19,7 @@ Project 5: https://www.cc.gatech.edu/~hays/compvision/proj5/
 
 Project 6: https://www.cc.gatech.edu/~hays/compvision/proj6/
 
-Project Report Links:
+### Project Report Links:
 
 Project 1: https://www.cc.gatech.edu/~hays/compvision/results/proj1/html/nmenon34/index.html
 
