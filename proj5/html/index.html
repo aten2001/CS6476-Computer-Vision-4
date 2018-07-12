@@ -1,0 +1,462 @@
+<html>
+<head>
+<title>Face Detection Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 1160px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+table td img {
+  text-align: center;
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Nidhi Menon </h1>
+</div>
+</div>
+<div class="container">
+
+<h2><b> Project 5: Face Detection with a Sliding Window </b></h2>
+
+<p style="text-align:justify">The goal of this project is to implement the sliding window model for face detection. The sliding window effectively allows us to independently classify all image patches as being object or non-object. For face classification, the sliding winow is one of the most noticeable successes of computer vision. In this project, we implement the simple sliding window detector of Dalal and Triggs 2005. Dalal-Triggs focuses on representation more than learning and introduces the SIFT-like Histogram of Gradients (HoG) representation. We use a linear SVM as a classifier in this project.</p>
+
+<p style="text-align:justify"> The implementation of the project can be divided into four main parts (excluding unchanged files from the starter code), based on the steps in the face detection pipeline:
+<ol>
+	<li>Extract positive features - Load cropped positive trained examples (faces) and convert them to HoG features with a call to vl_hog.</li>
+	<li>Extract negative features - Sample random negative examples from scenes which contain no faces and convert them to HoG features.</li>
+	<li>Classifier training - Train a linear SVM from the positive and negative examples with a call to vl_trainsvm.</li>
+	<li>Run the detector - Run the classifier on the test set. For each image, run the classifier at multiple scales and then call non_max_supr_bbox to remove duplicate detections.</li>
+</ol>
+</p>
+
+<h4>No implementation</h4>
+<p style="text-align:justify">In the given starter code, we use the placeholder code for the face detection pipeline. On running the starter code, I got the following results:</p>
+<center>
+	<img src="placeholder.png" width="35%"/>
+</center>
+
+<br>
+
+<h4>Part 1: Extract positive features</h4>
+<p style="text-align:justify">This function will return all positive training examples (faces) from 36x36 images in 'train_path_pos'. Each face will be converted into a HoG template according to 'feature_params'. On running the code, I got the following results:</p>
+<center>
+	<img src="pos feats.png" width="33%"/>
+</center>
+
+<br>
+
+<h4>Algorithm</h4>
+<ol>
+<li>Read in the parameters.</li>
+<li>Let image_files be the directory of the fullfile of train_pos_paths with .jpg. Let num_images be the length of the image_files vector.</li>
+<li>We create a vector of zeroes for positive features of dimensions num_images x template dimensionality.</li>
+<li>We loop over num_images to read in each image as single, run vl_hog() over it and reshaping the feature vector. </li>
+</ol>
+
+<br>
+
+<h4>Part 2: Extract negative features</h4>
+<p style="text-align:justify">This function will return negative training examples (non-faces) from any images in 'non_face_scn_path'. On running the code, I got the following results:</p>
+<center>
+	<img src="neg feats.png" width="31%"/>
+</center>
+
+<p style="text-align:justify">We see that our average precision is still 0 as we have not yet implemented our classifier to train or test our data. Once we do this we will see a boost in precision. we can observe that our train accuracy went down from 0.985 to 0.402. Our true positive rate went down while our false positive rate went up. This will be rectified after implementation of the SVM classifier.</p>
+
+<br>
+
+<h4>Algorithm</h4>
+<ol>
+<li>Read in the parameters.</li>
+<li>Let image_files be the directory of the fullfile of train_pos_paths with .jpg. Let num_images be the length of the image_files vector.</li>
+<li>We create a vector of zeroes for positive features of dimensions num_images x template dimensionality.</li>
+<li>We loop over num_samples to read in random images as single, normalize them, run vl_hog() over them and reshape the patches to obtain feature vector. </li>
+</ol>
+
+<br>
+
+<h4>Part 3: Classifier training</h4>
+<p style="text-align:justify">I have included the code to train the classifier in the main proj5.m file instead of creating a new function since it was a matter of very few lines. We use vl_svmtrain on our training features to get a linear classifier specified by w and b. On running the code, I got the following results:</p>
+<center>
+	<img src="run detector.png" width="30%"/>
+</center>
+<p style="text-align:justify">It can be observed that our accuracy has increased but our precision is still zero. </p>
+<br>
+	
+<h4>Algorithm</h4>
+<ol>
+<li>Set lambda to 0.0001.</li>
+<li>Create a matrix X that will have both positive features and negative features, and take its transopse.</li>
+<li>We create 2 vector; y1 of ones and y2 of negative ones and use them both to generate Y.</li>
+<li>Use vl_svmtrain() to call the function that will train a linear SVM.</li>
+</ol>
+
+<br>
+
+<h4>Part 4: Run the detector</h4>
+<p style="text-align:justify">This function returns detections on all of the images in a given path. We use non-maximum suppression on a per image basis on our detections to increase performance. Initially the code returns random bounding boxes in each test image. However, we change it so that it converts each test image to HoG feature space with a single call to vl_hog for each scale. We then step over the HoG cells, take groups of cells that are the same size as our learned template, and then classify them. If the classification is above some confidence, we keep the detection and then pass all the detections for an image to non-maximum suppression.</p>
+
+<h4>Algorithm</h4>
+<ol>
+<li>Read in the parameters.</li>
+<li>Read in the images and convert them to grayscale.</li>
+<li>Resize images and generate hog_patch and hog_features.</li>
+<li>Find bboxes, confidences and image_ids and retain only the maximum values. </li>
+</ol>
+
+<br>
+
+<p>
+1] Considering a template size of 36 and a cell size of 6, the results I got are as follows:
+<br>	
+<i>Output:</i><br>
+<img src="892 hog.png" width="24.5%"/>
+<img src="892 plot.png" width="24.5%"/>
+<img src="892 avg precision.png" width="24.5%"/>
+<img src="892 viola jones.png" width="24.5%"/>
+
+<br>
+<i>Analysis:</i>
+<br>
+Template size &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 36	<br>
+Cell size &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 6	<br>
+Execution time &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 57.861233 seconds	<br>
+Minimum Average precision : 0.872	<br>
+Maximum Average precision : 0.892	<br>
+</p>
+
+<p style="text-align:justify">2] Considering a template size of 36 and a cell size of 4, I get better results but the execution time is longer. The results I got are as follows:
+<br>	
+<i>Output:</i><br>
+<img src="918 hog.png" width="24.5%"/>
+<img src="918 plot.png" width="24.5%"/>
+<img src="918 ap.png" width="24.5%"/>
+<img src="918 vj.png" width="24.5%"/>
+<br>
+<!-- <img src="914/3.png" width="24.5%"/>
+<img src="914/4.png" width="24.5%"/>
+<img src="914/1.png" width="24.5%"/>
+<img src="914/2.png" width="24.5%"/>
+<br> -->
+
+<i>Analysis:</i>
+<br>
+Template size &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 36	<br>
+Cell size &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 4	<br>
+Execution time &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 62.670924 seconds	<br>
+Minimum Average precision : 0.914	<br>
+Maximum Average precision : 0.918	<br>
+<br>
+
+<p style="text-align:justify">3] Considering a template size of 36 and a cell size of 3, there was an improvement in the average precision. However it took long to run. Hence, I did not rerun it to check if the next run gave a more accurate result. The results I got are as follows:
+<br>	
+<i>Output:</i><br>
+<img src="921 hog.png" width="24.5%"/>
+<img src="921 plot.png" width="24.5%"/>
+<img src="921 avg precision.png" width="24.5%"/>
+<img src="921 viola jones.png" width="24.5%"/>
+<br>
+<!-- <img src="914/3.png" width="24.5%"/>
+<img src="914/4.png" width="24.5%"/>
+<img src="914/1.png" width="24.5%"/>
+<img src="914/2.png" width="24.5%"/>
+<br> -->
+
+<i>Analysis:</i>
+<br>
+Template size &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 36	<br>
+Cell size &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 3	<br>
+Average precision &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 0.921	<br>
+<br>
+
+In the code that I have submitted, I have kept the default cell-size of 6 to facilitate faster execution. It could however be changed to 4 to observe outputs with higher average precision. 
+</p>
+
+<p>
+<i>Explanation:</i><br>
+The Precision/Recall chart is a chart that plots precision versus recall. Precision is the fraction of retrieved instances that are relevant, while recall is the fraction of relevant instances that are retrieved. We can quantify precision and recall as follows:<br><br>
+
+<center>
+Precision = <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;true positives&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;true positives + false positives<br><br>
+
+Recall = <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;true positives&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;true positives + false negatives<br>
+</center>
+
+<br>
+The trade-off between precision and recall can be observed using a precision-recall curve.
+</p>
+
+<p>
+Examples of detection for comparison:
+</p>
+<table border="1">
+				<tbody>
+					<tr>
+						<td align="center" valign="center">
+							<img src="detections_Argentina.jpg.png" alt="description" width="99%">
+							<br>
+							With starter code
+						</td>
+						<td align="center" valign="center">
+							<img src="921 detections_Argentina.jpg.png" alt="description" width="99%">
+							<br>
+							With average precision = 0.921
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+<br><br>
+
+<br>
+
+<h3>Graduate Extra Credits</h3>
+<p style="text-align:justify">
+<b>1] Implementation of hard negative mining : 10 points<br></b>
+
+A hard negative is when you take a falsely detected patch, and explicitly create a negative example out of that patch, and add that negative to your training set. When you retrain your classifier, it should perform better with this extra knowledge, and not make as many false positives.
+
+In the original pipeline, we extract positive and negative features, train our SVM and then run the detector. But in case of implementation of hard negative mining, we extract positive and negative features and we train our SVM. We then use this SVM to run the detector and find hard negatives. These hard negatives that may be detected are then explicitly turned into patches of negative examples and added to the training set. This training set is then again used to train the SVM. It is expected that the SVM should work better after hard mining.
+<br>
+The results observed after my implementation (for template_size=36 and cell_size=4) are:<br><br>
+</p>
+<i>Output:</i><br>
+<img src="hard neg/4.png" width="24.5%"/>
+<img src="hard neg/1.png" width="24.5%"/>
+<img src="hard neg/2.png" width="24.5%"/>
+<img src="hard neg/3.png" width="24.5%"/>
+<center><img src="hard neg/5.png" width="45%"/></center>
+<br>
+
+<p style="text-align:justify">
+<i>Analysis:</i><br>
+I ran this code only once and it was observed that the average precision after hard mining was 0.884 which is better than the minimum average precision with random negative features. Hard mining is generally expected to improve precision but since here the random negatives themselves give good performance, hard negative mining is somewhat unnecessary for face detection.
+
+<br><br>
+
+<b>2] Implementation of different feautres : 10 points<br></b>
+
+HOG exists in many variants. VLFeat supports two: the UoCTTI variant (used by default) and the original Dalal-Triggs variant (with 2×2 square HOG blocks for normalization). The main difference is that the UoCTTI variant computes both directed and undirected gradients as well as a four dimensional texture-energy feature, but projects the result down to 31 dimensions. Dalal-Triggs works instead with undirected gradients only and does not do any compression, for a total of 36 dimension. In case we need to use the Dalal-Triggs variant, we need to append " 'variant', 'dalaltriggs' " as parameters to the function call and change the numeric value of 31 in dimensionality calculation to 36.
+<br>
+I observed that the feature vector generated in case of the default function call was 9x9x31 whereas in case of the Dalal-Triggs variant, the feature vector generated was 9x9x36. This indicated a change in dimensionality due to which we need to make appropriate changes in all files. (Refer README.txt)
+
+The results observed after my implementation (for template_size=36 and cell_size=6) are:<br><br>
+</p>
+
+<i>Output:</i><br>
+<img src="dalal/hog 882.png" width="24.5%"/>
+<img src="dalal/882.png" width="24.5%"/>
+<img src="dalal/ap 882.png" width="24.5%"/>
+<img src="dalal/vj 882.png" width="24.5%"/>
+<center><img src="dalal/argentina 882.png" width="45%"/></center>
+<br>
+
+<p style="text-align:justify">
+
+<i>Analysis:</i><br>
+It can be observed from the outputs that the UoCTTi version which is the default version of vl_hog() gave an average precision of 0.892 whereas the Dalal-Triggs version of vl_hog() gave an average precision of 0.882. Thus it can be concluded that UoCTTi version has better precision over Dalal-Triggs version which is probably why the research community mostly uses the former version.
+
+<br><br>
+
+<b>3] Implementation of different feautres : 10 points<br></b>
+
+(1) Replacing positive training data:<br>
+
+<br>
+
+This section talks about replacing positive training data that was provided. We originally worked with Caltech faces which were provided along with the starter code. In my implementation, I have replaced this dataset with <a href="http://conradsanderson.id.au/lfwcrop/">LFWcrop Face Dataset</a>.
+<br><br>
+LFWcrop is a cropped version of the Labeled Faces in the Wild (LFW) dataset, keeping only the center portion of each image (i.e. the face). In the vast majority of images almost all of the background is omitted. LFWcrop was created due to concern about the misuse of the original LFW dataset, where face matching accuracy can be unrealistically boosted through the use of background parts of images (i.e. exploitation of possible correlations between faces and backgrounds). For each LFW image, the area inside a fixed bounding box was extracted. The bounding box was at the same location for all images, with the upper-left and lower-right corners being (83,92) and (166,175), respectively. The extracted area was then scaled to a size of 64x64 pixels. The selection of the bounding box location was based on the positions of 40 randomly selected LFW faces. As the location and size of faces in LFW was determined through the use of an automatic face locator (detector), the cropped faces in LFWcrop exhibit real-life conditions, including mis-alignment, scale variations, in-plane as well as out-of-plane rotations. 
+<br>
+
+<br>
+The results observed after my implementation (for template_size=36 and cell_size=6) are:<br><br>
+</p>
+
+<i>Output:</i><br>
+<img src="replace/1.png" width="24.5%"/>
+<img src="replace/2.png" width="24.5%"/>
+<img src="replace/3.png" width="24.5%"/>
+<img src="replace/4.png" width="24.5%"/>
+<center><img src="replace/5.png" width="45%"/></center>
+<br>
+
+<p style="text-align:justify">
+
+<i>Analysis:</i><br>
+As mentioned on the site, LFWcrop Face Dataset was created to prevent unrealistically boosted face matching as in case of the original LFW dataset. Also, they mention that the cropped faces in LFWcrop exhibit real-life conditions, including mis-alignment, scale variations, in-plane as well as out-of-plane rotations. This makes it tougher for the model to work on the data, which is reflected in the low average precision of 0.549 which isn't too bad if we consider that our model gave more than 50% accuracy on a highly realistic and challenging dataset.
+
+<br><br>
+
+(2) Augmenting positive training data:<br>
+a> Flipping:
+In this implementation, the image that is read in is flipped in the vertical direction.<br>
+Output:<br>
+<img src="flipud/1.png" width="24.5%"/>
+<img src="flipud/2.png" width="24.5%"/>
+<img src="flipud/3.png" width="24.5%"/>
+<img src="flipud/4.png" width="24.5%"/>
+<center><img src="flipud/5.png" width="45%"/></center>
+<br><br>
+b> Smoothening:
+In this implementation, the image that is read in is smoothened using a Gaussian filter.<br>
+Output:<br>
+<img src="smooth/1.png" width="24.5%"/>
+<img src="smooth/2.png" width="24.5%"/>
+<img src="smooth/3.png" width="24.5%"/>
+<img src="smooth/4.png" width="24.5%"/>
+<center><img src="smooth/5.png" width="45%"/></center>
+<br><br>
+	c> Sharpening:
+		In this implementation, the image that is read in is flipped in the vertical direction.<br>
+
+		Output:<br>
+		<img src="sharp/1.png" width="24.5%"/>
+		<img src="sharp/2.png" width="24.5%"/>
+		<img src="sharp/3.png" width="24.5%"/>
+		<img src="sharp/4.png" width="24.5%"/>
+		<center><img src="sharp/5.png" width="45%"/></center>
+		<br><br>	
+<p style="text-align:justify">		
+Analysis:<br>
+These transformations on the image being read in make it tough for the model to work on the data. It gets challenging because the faces are in some way distorted, by flipping or smoothening. Hence, it is expected that the average precision in such cases will generally be lower than the normal case. In case of sharpening, however, the features become more enhanced, thus making it easier for the model to work on the data. Hence, in case of sharpening, the model is expected to work better. The outputs agree with the expected results thus indicating that the model has been trained properly.
+</p>
+
+<h3>Takeaways:</h3>
+<p style="text-align:justify">
+<ol>
+	<li>HoG descriptor image resembles a face.</li>
+	<li>For vl_hog() with a small cell-size, precision is higher but so is the execution time.</li>
+	<li>Hard negative mining usually works better. But it isn't always necessary.</li>
+	<li>UoCTTi version of vl_hog() produces better results than the Dalal-Triggs version.</li>
+	<li>While flipping and smoothening reduce precision, sharpening improves precision.</li>
+</p>
+<br><br>
+</p>
+</body>
+</html>

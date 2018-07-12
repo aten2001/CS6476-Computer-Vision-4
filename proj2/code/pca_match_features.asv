@@ -1,0 +1,24 @@
+function [matches, confidences] = match_features_pca(features1, features2)
+
+num_feats = 32;
+C = vertcat(features1,features2); 
+[residuals,reconstructed] = pcares(C,num_feats);
+features1 = reconstructed(1:size(features1,1), 1:num_feats); 
+features2 = reconstructed(size(features1,1)+1:end, 1:num_feats);
+
+Dist=pdist2(features1,features2,'euclidean');
+[B,I] = sort(Dist,2); 
+NN1=B(:,1);
+NN2=B(:,2);
+confidences=NN1./NN2;                
+i=find(confidences);
+s=size(i);
+matches=zeros(s(1),2);
+matches(:,1)=i; 
+matches(:,2)=I(i);
+confidences=1./confidences(i);
+[confidences,ind]=sort(confidences,'descend');
+matches=matches(ind,:);
+matches=matches(1:100,:); 
+confidences = confidences(1:100,:);
+end

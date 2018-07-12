@@ -1,0 +1,354 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	/*background: #fcfcfc;*/
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 1160px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+table td img {
+  text-align: center;
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Nidhi Menon</h1>
+</div>
+</div>
+<div class="container">
+
+<h2><b> Project 3: Camera Calibration and Fundamental Matrix Estimation with RANSAC</b></h2>
+
+<p  style="text-align:justify">The goal of this assignment is to estimate the camera projection matrix and the fundamental matrix, with and without using RANSAC. This assignment is divided into three parts. In the first part, we detect the camera center and estimate the projection matrix using functions <i>calculate_projection_matrix()</i> and <i>compute_camera_center()</i>. In the second part, we estimate the fundamental matrix using a function <i>estimate_fundamental_matrix()</i>. In the third part, we estimate the fundamental matrix with unreliable SIFT matches using RANSAC, in a function <i>ransac_fundamental_matrix()</i>. The starter code uses VLFeat to do SIFT matching.</p>
+
+<p  style="text-align:justify">In Project 2, we used harris corner detector to detect interest points, an implemntation of SIFT to detect features and various methods and distance measures to match the features. This did not work for the challenging images of Gaudi's Episcopal Palace. In this project we use RANSAC to find the fundamental matrix with the most inliers. Thus, we can filter away spurious matches and achieve near perfect point to point matching.</p>
+
+<br>
+
+<h3>Part 1: Estimating the projection matrix and the camera center</h3>
+
+<p  style="text-align:justify">The goal here is to compute the projection matrix that maps the 3D world coordinates to 2D image coordinates. This can be done using a projection matrix. Once an accurate projection matrix M is ready, it is split into matrix K of intrinsic parameters and matrix [R | T] of extrinsic parameters. Let us define M as being made up of a 3x3 matrix called Q and a 4th column called m_4 :
+<br>
+M = (Q | m_4 )
+<br>
+Tha camera center C can then be calculated as:
+</p>
+
+<img src="cc.png"/>
+<br>
+
+<p  style="text-align:justify">This can be done using a set of non-homogeneous coordinates. The results are as follows:</p>
+
+
+	<img src="nonhomo_res.png"/>
+
+<br>
+<tr>	
+	
+<img src="nonhomo_cam3d.png" width="38%"/>
+<img src="nonhomo_cam2d.png" width="38%"/>
+</tr>
+
+
+<br>
+
+<p  style="text-align:justify">I implemented the same using a set of homogeneous coordinates also. The equation for 3D to 2D conversion of homogeneous coordinates is :</p>
+<img src="equations.png"/>
+
+ <p>The results are as follows:</p>
+
+
+	<img src="homo_res.png"/>
+
+<br>
+<tr>
+
+<img src="homo_cam3d.png" width="38%"/>
+<img src="homo_cam2d.png" width="38%"/>
+</tr>
+
+
+<br>
+
+<h4>Algorithm</h4>
+<ol>
+<li>Read 2D coordinates and 3D coordinates into 2 separate matrices.</li>
+<li>Generate a matrix representing a system of equations to solve for M.</li>
+<li>Take the matrix left-division in case of non-homogeneous coordinates. For homogeneous coordinates, take the singular value decomposition (SVD) of matrix, retrieve the right singular vectors and reshape it into a 3*3 matrix.</li>
+<li>Split projection matrix into Q and m4. Calculate camera center as [-1 * Q \ m4] </li>
+</ol>
+
+<br>
+
+<h3>Part 2: Estimating the fundamental matrix for image pairs</h3>
+
+<p  style="text-align:justify">The goal here is to estimate the mapping of points in one image to lines in another by means of the fundamental matrix The approach here is similar to part1. The definition of a fundamental matrix is:</p>
+<img src="fm1.png"/>
+<br>
+<img src="fm2.png"/>
+
+<p  style="text-align:justify">The results obtained are as follows:</p>
+<img src="f_matrix.png"/>
+
+<br>
+<br>
+
+<p>Base Image pair:</p>
+<table border=1>
+<tr>
+<td>
+<img src="efm_fig1.png" width="49%"/>
+<img src="efm_fig2.png" width="49%"/>
+</td>
+</tr>
+</table>
+
+<br>
+
+<h4>Algorithm</h4>
+	<ol>
+		<li>Read the two images.</li>
+		<li>Generate a matrix representing a system of equations to solve for F.</li>
+		<li>Take SVD of the matrix, retrieve the right singular vectors and reshape it into a 3*3 matrix.</li>
+		<li>Take U,S,V from above step.</li>
+		<li>Set smallest singular value to 0.</li>
+		<li>Multiply U,S, and V-transpose to get F.</li>
+	</ol>
+
+<br>
+
+<h3>Part 3: Fundamental Matrix with RANSAC</h3>
+
+<p  style="text-align:justify">The goal here is to estimate the mapping of points in one image to lines in another by using RANSAC in conjunction with the estimated fundamental matrix. Random Sample Consensus (RANSAC) is an interative method to estimate parameters of a mathematical model from a set of observed data that contains outliers, when outliers are to be accorded no influence on the values of the estimates. The given started code make use of the VLFeat package to do SIFT matching for the image pair. These putative point correspondences and RANSAC work simultaneously to find the best fundamental matrix.</p>
+
+<p  style="text-align:justify">The results obtained are as follows:</p>
+
+<table border=1>
+<tr>
+<p><b>Notre Dame:</b></p>	
+<td>
+<img src="ND_efm_fig1.png" width="49%"/>
+<img src="ND_efm_fig2.png" width="49%"/>
+</td>
+</tr>
+<td>
+<img src="ND_efm_fig3.png" width="49%"/>
+<img src="ND_efm_fig4.png" width="49%"/>
+</td>
+</tr>
+</table>
+
+<br>
+
+<h4>Algorithm</h4>
+	<ol>
+		<li>Read the two images.</li>
+		<li>Set a count for number of iterations.</li>
+		<li>Iterate over number of rows and take absolute value of error and accordingly assign them to the inlier arrays. Also increment the update variable.</li>
+		<li>Compare values of update and best variables and assign the highest one to Best_Fmatrix.</li>
+		<li>Check number of inliers.</li>
+		<li>In case of more than 30 inliers, randomly choose 30 from a random sample of indices from the 2 inlier arrays.</li>
+	</ol>
+
+<p style="text-align: justify">The other results obtained are:</p>
+<table border=1>
+<tr>
+<p><b>Wood Ruff:</b></p>	
+<td>
+<img src="WR_efm_fig1.png" width="49%"/>
+<img src="WR_efm_fig2.png" width="49%"/>
+</td>
+</tr>
+<td>
+<img src="WR_efm_fig3.png" width="49%"/>
+<img src="WR_efm_fig4.png" width="49%"/>
+</td>
+</tr>
+</table>
+
+<br>
+<table border=1>
+<tr>
+<p><b>Mount Rushmore:</b></p>	
+<td>
+<img src="MR_efm_fig1.png" width="49%"/>
+<img src="MR_efm_fig2.png" width="49%"/>
+</td>
+</tr>
+<td>
+<img src="MR_efm_fig3.png" width="49%"/>
+<img src="MR_efm_fig4.png" width="49%"/>
+</td>
+</tr>
+</table>
+
+<br>
+
+<h3><b>Graduate Extra Credits</b></h3>
+
+<p  style="text-align:justify">The estimate of a fundamental matrix can be improved by normalizing the coordinates before computing the fundamental matrix. The normalization through linear transformation is as follows:</p>
+<img src="normed1.png"/>
+<p style="text-align:justify">The tranform matrix T is the product of the scale and offset matrices. c_u and c_v are the mean coordinates. To compute a scale 
+s we can estimate the standard deviation after subtracting the means.</p>
+
+<p  style="text-align:justify">The results obtained are as follows:</p>
+<table border=1>
+<tr>
+<p><b>Episcopal Gaudi:</b>	Before normalization</p>	
+<td>
+<img src="EG_efm_fig1.png" width="49%"/>
+<img src="EG_efm_fig2.png" width="49%"/>
+</td>
+</tr>
+<td>
+<img src="EG_efm_fig3.png" width="49%"/>
+<img src="EG_efm_fig4.png" width="49%"/>
+</td>
+</tr>
+</table>
+
+<br>
+
+<table border=1>
+<tr>
+<p><b>Episcopal Gaudi:</b>	After normalization</p>	
+<td>
+<img src="EG_nfm_fig1.png" width="49%"/>
+<img src="EG_nfm_fig2.png" width="49%"/>
+</td>
+</tr>
+<td>
+<img src="EG_nfm_fig3.png" width="49%"/>
+<img src="EG_nfm_fig4.png" width="49%"/>
+</td>
+</tr>
+</table>
+
+<br><br>
+
+</body>
+</html>

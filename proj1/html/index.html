@@ -1,0 +1,472 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">nidhi menon</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2><b>Project 1: Image Filtering and Hybrid Images</b></h2>
+
+<p  style="text-align:justify">This assignment is divided into two parts. In the first part, we write an image filtering function called <i>my_imfilter()</i> that imitates the functionalities of the in-built <i>imfilter()</i> function of MATLAB. In the second part, we use this function to generate hybrid images from given pre-aligned image pairs.</p>
+
+<h3>Part 1: Image Filtering</h3>
+
+<p  style="text-align:justify"> 	Image processing is a method to perform operations on an image using mathematical operations, in order to get an enhanced image or to extract some useful information from it. Image filtering is a technique of image processing which is used to emphasize or remove certain feature of an image. Filtering is a neighborhood operation since the value of any pixel in the output image is determined by applying some algorithm to the neighboring pixels in the input image.</p>
+
+<p style="text-align:justify"> 	Linear filtering is filtering in which the value of an output pixel is a linear combination of the values of the pixels in the input pixel's neighborhood. It  is accomplished through an operation called convolution. In MATLAB, the in-built <i> imfilter() </i> function is used for filtering of multidimensional images. The syntax is <i> B = imfilter(A,h) </i> where A and h represent the image and the filter respectively.</p>
+
+<div style="clear:both">
+
+<p	style="text-align:justify"> As part of this project, we implement our version of the <i>imfilter() </i> function as <i>my_imfilter()</i>. The algorithm of the project is as follows:</p>
+<h4>Algorithm with code snippets</code></h4>
+<ol>
+<li>Read input image and filter</li>
+<li>Check if input image is RGB or Grayscale:
+	<ol type="a">
+		<li>If image is RGB, split into R, G and B channels and apply step 3 for each channel</li>
+		<li>If image is grayscale, continue to step 3</li>
+	</ol>
+</li>
+<li>Call the my_imfilter function inside which the following steps will be executed:
+<ol type="a">
+	<li>Check if filter has odd dimensions</li>
+	<pre><code>
+%check if filters have odd dimensions
+fsize=size(filter);
+fxsize=fsize(1);  % fsize(1) returns no. of rows in filter matrix
+fysize=fsize(2);  % fsize(2) returns no. of columns in filter matrix
+if((mod(fxsize,2) ==0) || (mod(fysize,2) ==0))
+  error('Filter must have odd dimensions.');
+end
+	</code></pre>
+	<li>Pad the input image</li>
+	<pre><code>
+% calculate padsize - padding needs to be at least half as long as the filter length
+padxsize = ((fxsize+1)/2) - 1;
+padysize = ((fysize+1)/2) - 1;
+
+% padding the image with zeroes
+image = padarray(img1, [padxsize,padysize]);
+imgsize=size(image);
+imgxsize=imgsize(1);
+imgysize=imgsize(2);
+	</code></pre>
+	<li>Carry out filtering</li>
+	<pre><code>
+% apply filter to image
+for r=1:imgxsize-fxsize+1
+ for c=1:imgysize-fysize+1
+	myOutput(floor(fxsize/2)+r,floor(fysize/2)+c)=sum(sum(image(r:r+fxsize-1, c:c+fysize-1) .* filter));
+ end
+end
+	</code></pre>
+	<li>Un-pad the filtered image</li>
+	<pre><code>
+% un-pad output image matrix
+conv=myOutput(padxsize+1:end-padxsize, padysize+1:end-padysize);
+	</code></pre>
+</ol>
+</li>
+<li>If image is RGB, combine all 3 channels back into a single image</li>
+<li>Display image</li>
+</ol>
+
+<p style="text-align:justify"> Several filtering techniques were applied on an image of a cat and the results are as shown below: </p>
+<br>
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td align="center" valign="center">
+				<img src="identity_image.jpg" alt="description">
+				<br>
+				Input image
+			</td>
+			<td align="center" valign="center">
+				<img src="blur_image.jpg" alt="description">
+				<br>
+				Small blur with box filter
+			</td>
+			<td align="center" valign="center">
+				<img src="large_blur_image.jpg" alt="description">
+				<br>
+				Large blur with Gaussian filter
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<br>
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td align="center" valign="center">
+				<img src="sobel_image.jpg" alt="description">
+				<br>
+				Oriented filter (Sobel operator)
+			</td>
+			<td align="center" valign="center">
+				<img src="laplacian_image.jpg" alt="description">
+				<br>
+				High-pass filter (Discrete Laplacian)
+			</td>
+			<td align="center" valign="center">
+				<img src="high_pass_image.jpg" alt="description">
+				<br>
+				High-pass alternative for filter
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<br>
+
+<h3>Part 2: Hybrid Images</h3>
+
+<p  style="text-align:justify"> A hybrid image is a picture that is generated by superimposing low-spatial frequencies of one image and high-spatial frequencies of another image to form static images with two interpretations which vary according to viewing distance.	</p>
+
+<p style="text-align:justify"> 	In this project, we use a Gaussian filter to to generate low-frequency version of first image. Similarly, the low-frequency version of the second image is calculated and subtracted from the original image to obtain the high-frequency version of the second image. The two new images are then added together to generate the hybrid image. </p>
+
+<h4>Algorithm with code snippets</code></h4>
+	<ol>
+		<li>Read the two images</li>
+		<li>Decide the cutoff-frequency</li>
+		<li>Generate a filter using <i>fspecial()</i> method</li>
+		<li>Generate smoothened version of image-1</li>
+		<li>Carry out following steps on image-2:
+			<ol type="a"><li>Generate smoothened version of image-2</li>
+									 <li>Subtract this from the original image to obtain sharpened version of image-2</li>
+				</ol>
+		</li>
+		<li>Add the results of steps 4 and 5 to generate a hybrid image</li>
+	</ol>
+
+	<pre><code>
+low_frequencies=my_imfilter(image1,filter);
+high_frequencies=image2-(my_imfilter(image2,filter));
+hybrid_image=low_frequencies+high_frequencies;
+	</code></pre>
+
+<p style="text-align:justify"> In the following example, we have 2 images of a cat and a dog. In the process of constructing an hybrid image, a high-frequency version of the cat is combined with the low-frequency version of the dog and both are combined to obtain the desired result. The result obtained varies with variance in the paramaters called <i>cutoff-frequency</i>, which is different for different pair of images. </p>
+<p>In the example below, the hybrid image looks like a cat when seen up close while it seems like a dog from afar.</p>
+
+<table border=1>
+<tr>
+<td>
+<img src="cat.bmp" width="23%"/>
+<b> --> </b>
+<img src="high_frequencies.jpg" width="23%"/>
+<b> + </b>
+<img src="dog.bmp"  width="23%"/>
+<b> --> </b>
+<img src="low_frequencies.jpg" width="23%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="d-c-7.jpg" width="98%"/><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cat-Dog Hybrid Image with cutoff-frequency=7
+</td>
+</tr>
+
+</table>
+
+<div style="clear:both" >
+<p> 	The results for four other pairs of images are as shown below (in clockwise direction):</p>
+<ol>
+	<li> Mototcycle-Bicycle Hybrid Image (cutoff-frequency = 6)
+	<li> Marilyn-Einstein Hybrid Image (cutoff-frequency = 5)
+	<li> Fish-Submarine Hybrid Image (cutoff-frequency = 5)
+	<li> Bird-Plane Hybrid Image (cutoff-frequency = 5)
+<ol>
+
+<br>
+
+<table border=1>
+<tr>
+<td>
+<img src="m-b-6.jpg" width="49%"/>
+<img src="m-e-5.jpg"  width="49%"/>
+</td>
+</tr>
+<tr></tr><tr></tr><tr></tr><tr></tr><tr></tr>
+<tr>
+<td>
+<img src="f-s-5.jpg" width="49%"/>
+<img src="b-p-5.jpg" width="49%"/>
+</td>
+</tr>
+
+</table>
+
+</div>
+
+<br>
+<h3>Observations</h3>
+
+<p  style="text-align:justify">
+	<ol>
+		<li>Padding with zeros vs Replicated padding
+			<p  style="text-align:justify">
+				I have the inbuilt function <i>padarray()</i> in MATLAB to pad the input image to the <i>my_imfilter()</i> function. By default, the function pads the input image with zeros on all sides. However, zero being the numeric representation of the color black, the image gets a black border on all sides which remains significant even after the filter is applied and the padding is undone. This difference is most evident in the output image for Gaussian filter. I have implemented zero padding in the <i>my_imfilter()</i> function to imitate the default behavior of the <i>padarray()</i> function. Had the code been written for replicated padding, the output would have been as follows:
+			</p>
+			<table border="1">
+				<tbody>
+					<tr>
+						<td align="center" valign="center">
+							<img src="identity_image2.jpg" alt="description">
+							<br>
+							Input image
+						</td>
+						<td align="center" valign="center">
+							<img src="blur_image2.jpg" alt="description">
+							<br>
+							Small blur with box filter
+						</td>
+						<td align="center" valign="center">
+							<img src="large_blur_image2.jpg" alt="description">
+							<br>
+							Large blur with Gaussian filter
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<br>
+
+			<table border="1">
+				<tbody>
+					<tr>
+						<td align="center" valign="center">
+							<img src="sobel_image2.jpg" alt="description">
+							<br>
+							Oriented filter (Sobel operator)
+						</td>
+						<td align="center" valign="center">
+							<img src="laplacian_image2.jpg" alt="description">
+							<br>
+							High-pass filter (Discrete Laplacian)
+						</td>
+						<td align="center" valign="center">
+							<img src="high_pass_image2.jpg" alt="description">
+							<br>
+							High-pass alternative for filter
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<br>
+		</li>
+		<li>Interchanging images while constructing hybrid images
+			<p  style="text-align:justify">
+				The script for hybrid images is written such that a smoothening filter is applied on the first image and a sharpening filter is applied on the second image to construct a hybrid image. However, I observed that the result varies significantly based on which image is smoothened and which image is sharpened. The swapping of the two images also calls for a change in the cutoff-frequency for construction of the hybrid image. For example, consider the following case of cat and dog to observe the difference caused by swapping images:
+			</p>
+			<table border="1">
+				<tbody>
+					<tr>
+						<td align="center" valign="center">
+							<img src="d-c-7.jpg" width="48.75%" alt="description"/>
+							<b> vs </b>
+							<img src="c-d-8.jpg" width="48.75%" alt="description"/>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="center">
+							<br>
+							Dog and Cat, cutoff frequency=7
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							Cat and Dog, cutoff frequency=8
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</li>
+		<br>
+		<li>Variations in cutoff-frequencies
+			<p style="text-align:justify">
+				The SIGGRAPH 2006 paper by Oliva, Torralba, and Schyns suggests that we could use two cutoff frequencies, one for each image when constructing a hybrid image. The results obtained are slightly better when cutoff frequencies are tuned separately for every image, as shown in the comparison below. To the left is the hybrid image generated from pictures of Marilyn and Einstein with a common cutoff-frequency=5. To the right is the hybrid image generated when the cutoff-frequency for the former is 7 and that for the latter is 3.
+			</p>
+			<table border="1">
+				<tbody>
+					<tr>
+						<td align="center" valign="center">
+							<img src="m-e-5.jpg" width="48.75%" alt="description"/>
+							<b> vs </b>
+							<img src="m-e-7-3.jpg" width="48.75%" alt="description"/>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="center">
+							<br>
+							Marilyn and Einstein, cutoff frequency=5
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							Marilyn(cutoff frequency=7) and Einstein(cutoff frequency=3)
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</li>
+</p>
+
+<br>
+
+<h3>Extra</h3>
+<p  style="text-align:justify">
+I tried experimenting with two new images, apart from the ones given in the dataset. Alignment of images and their dimensions are two major factors to be considered while constructing hybrid images. Hence, it has been ensured that the two images were aligned and of the same dimensions. The first image is that of farfalle pasta while the second is of a bow-shaped napkin. The results obtained are as follows:</p>
+<table border=1>
+<tr>
+<td>
+<img src="pasta.png"/></td><td>
+<img src="bow1.png"/>	</td><td>
+<img src="image_scales.jpg"/>
+</td>
+</tr>
+</table>
+
+<br>
+<h3>Takeaways</h3>
+
+<p  style="text-align:justify">
+	1. Reflected padding is better than zero-padding in image filtering process since it does away with the dicontinuity in the image caused by black borders.
+	<br>
+	2. In a pair of images used to generate hybrid images, smoothening and sharpening filters can be applied on either images. However, one yields better results than the other.
+	<br>
+	3. Separately tuned cutoff-frequencies for individual images generate better hybrid images than a common cutoff-frequency.
+</p>
+
+<br><br>
+
+</body>
+</html>

@@ -1,0 +1,369 @@
+<html>
+<head>
+<title>Deep Learning Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 50px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 1160px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+table td img {
+  text-align: center;
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Nidhi Menon </h1>
+</div>
+</div>
+<div class="container">
+
+<br>
+
+<h2><b> Project 6: Deep Learning</b></h2>
+
+<p style="text-align:justify">The goal of this project is to design and train deep convolutional networks for scene recognition using the MatConvNet toolbox. This is similar to what we did in Project 4 i.e. Scene recognition with bag of words wherein we designed a Bag of Features representations on 15-way scene classification. In this project we attack the same task with deep learning.</p>
+
+<p style="text-align:justify">Deep learning is a set of algorithms in machine learning that attempt to model high-level abstractions in data by using architectures composed of multiple non-linear transformations. In machine learning, a convolutional neural network (CNN, or ConvNet) is a class of deep, feed-forward artificial neural networks that has successfully been applied to analyzing visual imagery. CNNs use a variation of multilayer perceptrons designed to require minimal preprocessing.</p>
+
+<p style="text-align:justify"> This project can be divided into two main parts:
+<ol>
+	<li>Part 1: To train a deep convolutional network from scratch to recognize scenes.</li>
+	<li>Part 2: To fine-tune a pre-trained deep network (VGG-F network) which was not trained to recognize scenes at all.</li>
+</ol>
+</p>
+
+<h4><b>Part 0: Getting started with MatConvNet</b></h4>
+
+<p style="text-align:justify">This was just a warmup session to ensure that MatConvNet is working. I stepped through the MatConvNet "Quick start" demo. The following steps were executed:</p>
+
+<ol>
+<li>Download MatConvNet 1.0 beta 25.</li>
+<li>Download mex files for CPU-only usage and add them to the patch: [MatConvNetPath]/matlab/mex/</li>
+<li>Execute the following set of commands in the MATLAB command window:</li>
+</ol>
+
+<pre><code>
+% install and compile MatConvNet 
+% (you can skip this if you already installed MatConvNet beta 25 and the mex files)
+% untar('http://www.vlfeat.org/matconvnet/download/matconvnet-1.0-beta25.tar.gz') ;
+% cd matconvnet-1.0-beta25
+% run matlab/vl_compilenn
+
+% download a pre-trained CNN from the web (needed once)
+urlwrite('http://www.vlfeat.org/matconvnet/models/imagenet-vgg-f.mat', 'imagenet-vgg-f.mat') ;
+% If you have problems downloading through Matlab,
+% you can simply put the url into a web browser and save the file.
+
+% setup MatConvNet. Your path might be different.
+run  '../matconvnet-1.0-beta25/matlab/vl_setupnn'
+
+% load the 233MB pre-trained CNN
+net = load('imagenet-vgg-f.mat') ;
+
+% Fix any compatibility issues with the network
+net = vl_simplenn_tidy(net) ;
+
+% load and preprocess an image
+im = imread('peppers.png') ;
+im_ = single(im) ; % note: 255 range
+im_ = imresize(im_, net.meta.normalization.imageSize(1:2)) ;
+im_ = im_ - net.meta.normalization.averageImage ;
+
+% run the CNN
+res = vl_simplenn(net, im_) ;
+
+% show the classification result
+scores = squeeze(gather(res(end).x)) ;
+[bestScore, best] = max(scores) ;
+figure(1) ; clf ; imagesc(im) ;
+title(sprintf('%s (%d), score %.3f',...
+net.meta.classes.description{best}, best, bestScore)) ;
+</code></pre>
+
+<br>
+
+<h4><b>Part 1: Training a deep network from scratch</b></h4>
+
+<p style="text-align:justify">This part of the project includes steps to train a deep network from scratch. These have been labeled as Problems 1 to 5 on the project page.</p>
+
+
+<h4>No implementation</h4>
+<p style="text-align:justify">With the given starter code, one can train a simple network that achieves only 25% accuracy. On running the starter code, I got the following results:</p>
+<center>
+	<img src="starter1.png" width="80%"/>
+</center>	
+<br>
+<center>
+	<img src="starter2.png" width="35%"/>
+</center>	
+<p>Thus it can be observed that on running the starter code, I get around 30% accuracy.</p>
+
+<br>
+
+
+<h4>Problem 1: We don't have enough training data. Let's "jitter".</h4>
+
+<p style="text-align:justify">We have a very small dataset of 1,500 training examples for this project. This dataset has samples from categories like kitchen, bedroom, etc. For these domains, mirroring the image will never change the category of the sample. Hence, we can synthetically increase our amount of training data by left-right mirroring training images during the learning process. The learning process calls getBatch() in proj6_part1.m each time it wants training or testing images. So we modify getBatch() to randomly flip some of the images, using functions rand() and fliplr().</p>
+
+<p style="text-align:justify">Mirroring is easy to implement and we get to see a 5% to 10% increase in accuracy (or drop in top 1 validation error) by adding mirroring. However, our training error doesn't drop as quickly. That's actually a good thing, because it means the network isn't overfitting to the 1,500 original training images as much (because it sees 3,000 training images now, although they're not as good as 3,000 truly independent samples). Because the training and test errors fall more slowly, I increased the number of epochs to 80. </p>
+
+<ol>
+<li>Learning process calls getBatch()</li>
+<li>Randomly flip some images using functions like rand and fliplr</li>
+<li>Add these images to the image database and then return the images with their labels that indicate ground truth category of each image.</li>
+</ol>
+
+<p style="text-align:justify">The results obtained after jittering are as shown below:</p>
+<center>
+	<img src="jitter1.png" width="80%"/>
+</center>
+<br>
+<center>
+	<img src="jitter2.png" width="35%"/>
+</center>
+<p>Thus it can be observed that after jittering, I get close to 38% accuracy.</p>
+<br>
+
+<h4>Problem 2: The images aren't zero-centered.</h4>
+
+<p style="text-align:justify">Here, we modify proj6_part1_setup_data.m so that it computes the mean image and then subtracts the mean from all images before returning imdb. Though it would arguably be more proper to only compute the mean from the training images (since the test/validation images should be strictly held out), computing mean from all images won't make much of a difference. After doing this we observe another 15% or so increase in accuracy. </p>
+
+<ol>
+<li>Calculate original pixel values</li>
+<li>Zero center each image by subtracting the mean from original pixel values </li>
+</ol>
+
+<p style="text-align:justify">The results obtained after zero-centering images are as shown below:</p>
+<center>
+	<img src="zero1.png" width="80%"/>
+</center>
+<br>
+<center>
+	<img src="zero2.png" width="35%"/>
+</center>
+<p>Thus it can be observed that after zero-centering the images, I get close to 55% accuracy.</p>
+<br>
+
+
+<h4>Problem 3: Our network isn't regularized. </h4>
+
+<p style="text-align:justify">At times for higher epochs (higher than the default value of 50) it is possible that we could see that the training error can decrease to zero while the val top1 error hovers at 40% to 50%. This is possible since the network has learned weights which can perfectly recognize the training data, but those weights don't generalize to held out test data. The best regularization would be more training data but we don't have that. Hence we use dropout regularization. </p>
+
+<p style="text-align:justify">Dropout regularization randomly turns off network connections at training time to fight overfitting. This prevents a unit in one layer from relying too strongly on a single unit in the previous layer. Dropout regularization can be interpreted as simultaneously training many "thinned" versions of the network. At test test, all connections are restored which is analogous to taking an average prediction over all of the "thinned" networks. </p>
+
+<ol>
+<li>Decide on dropout rate, the one free parameter that the dropout layer has (default is 0.5)</li>
+<li>Insert the line for dropout layer directly before your last convolutional layer</li>
+</ol>
+
+<p style="text-align:justify">The results obtained after zero-centering images are as shown below:</p>
+<center>
+	<img src="dropout1.png" width="80%"/>
+</center>
+<br>
+<center>
+	<img src="dropout2.png" width="35%"/>
+</center>
+<p>Thus it can be observed that after regularization, I get 60% accuracy.</p>
+<br>
+
+
+<h4>Problem 4: Our network isn't deep. </h4>
+
+<p style="text-align:justify">Our convolutional network to this point isn't "deep". It has two layers with learned weights. One quite unsatisfying aspect of our current network architecture is that the max-pooling operation covers a window of 7x7 and then is subsampled with a stride of 7. That seems overly lossy and deep networks usually do not subsample by more than a factor of 2 or 3 each layer. Hence we change the stride of the max-pool layer to 3.</p>
+
+<p style="text-align:justify">I make my network deeper by adding an additional convolutional layer after the existing relu layer with a 5x5 spatial support followed by a max-pool over a 3x3 window with a stride of 2. My final layer had to be adjusted in order to have its weights initialized according to data depth output for previous layer.</p>
+
+<ol>
+<li>Add a convolutional layer after the existing relu layer</li>
+<li>Add a maximum pooling layer after this</li>
+<li>One could additionally add a relu layer after this</li>
+<li>Adjust the weights of the final layer to account for the changes made in the previous layers</li>
+</ol>
+
+<p style="text-align:justify">The results obtained after zero-centering images are as shown below:</p>
+<center>
+	<img src="deep1.png" width="80%"/>
+</center>
+<br>
+<center>
+	<img src="deep2.png" width="35%"/>
+</center>
+<br>
+<center>
+	<img src="part1time.png" width="25%"/>
+</center>
+
+<p style="text-align:justify">Thus the code gives 52.133% accuracy in approximately 9 minutes which passes the benchmark of getting at least 50% accuracy in 10 minutes. Here it was observed that making the network deep resulted in a decrease in accuracy by almost 8%.</p>
+
+<br>
+
+
+<h4>Problem 5: Our "deep" network is slow to train and brittle.</h4>
+
+<p style="text-align:justify">I have not used batch normalization since I am achieving more than 50% test accuracy for 80 epochs with a deeper network which uses mirroring to jitter, zero-centers the images as they are loaded, and regularizes the network with a dropout layer.</p>
+
+<br>
+
+<h4><b>Part 2: Fine-tuning a pre-trained deep network</b></h4>
+
+<p style="text-align:justify">This part of the project includes steps to fine-tune the pretrained VGG-F ("F" for "fast") network which was not trained to recognize scenes at all.</p>
+
+<p style="text-align:justify">The project page offers two possible strategies, Strategy A and Strategy B. I chose to follow the first strategy, which is as follows:</p>
+
+<h4>Strategy A: (as given on the project page)</h4>
+
+<p style="text-align:justify">The VGG-F network has 1000 units in the final layer corresponding to 1000 ImageNet categories. One could use those 1000 activation as a feature in place of a hand crafted feature such as a bag-of-features representation. You would train a classifier (typically a linear SVM) in that 1000 dimensional feature space. However, those activations are clearly very object specific and may not generalize well to new recognition tasks. It is generally better to use the activations in slightly earlier layers of the network, e.g. the 4096 activations in "fc6" or "fc7". You can often get away with sub-sampling those 4096 activations considerably, e.g. taking only the first 200 activations. This Strategy A for using an existing deep network was extra credit for project 4 and several students achieved high accuracy (especially when using a deep network trained on the Places database, but that isn't so much a testament to generalization because it's the same task with more training data). 
+</p>
+
+<p style="text-align:justify">I tried running proj6_part2.m for a batchSize of 50, learningRate of 0.0001 and numEpochs=5. While it gave a good accuracy above 90%, the time taken exceeded 10 minutes. Hence I had to further fine-tune my dataset. I made the following changes:</p>
+
+<ol>
+<li>batchSize was kept unchanged at 50</li>
+<li>learningRate was set to 0.001</li>
+<li>numEpochs was reduced to 3</li>
+<li>Retrain only the new fc8 layer by setting opts.backPropDepth = 2 in proj6_part2.m</li>
+</ol>
+
+<p style="text-align:justify">The results observed were as follows:</p>
+<center>
+	<img src="cv3.png" width="50%"/>
+</center>
+<br>
+<center>
+	<img src="cv2.png" width="50%"/>
+</center>
+<br>
+<center>
+	<img src="cv1.png" width="30%"/>
+</center>
+<p>Thus the code gives 88.0667% accuracy in approximately 8 minutes which passes the benchmark of getting at least 85% accuracy in 10 minutes.</p>
+
+<br><br>
+
+</body>
+</html>

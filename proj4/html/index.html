@@ -1,0 +1,1020 @@
+<html>
+<head>
+<title>Recognition with Bag of Words</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 1160px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+table td img {
+  text-align: center;
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Nidhi Menon</h1>
+</div>
+</div>
+<div class="container">
+
+<!-- <h2>Project 4 / Scene Recognition with Bag of Words</h2> -->
+<br>
+<h2><b>Project 4: Scene Recognition with Bag of Words</b></h2>
+
+<p style="text-align:justify">The goal of this project is to create a scene recognition and classification algorithm. We try to classify scenes into 1 of 15 categories. To do this, we extract features from each scene, and train a classifier over the extracted features. We experiment with two different features- tiny images and bag of sift, and with two different classifiers- nearest neighbors and support vector machines.</p>
+
+<p style="text-align:justify"> This assignment can be divided into three main parts, based on the combinations of feature and classifier used for implementation.
+<ol>
+	<li>Tiny images representation and nearest neighbor classifier</li>
+	<li>Bag of SIFT representation and nearest neighbor classifier</li>
+	<li>Bag of SIFT representation and linear SVM classifier</li>
+</ol>
+</p>
+
+<h3>Confusion matrix</h3>
+<p style="text-align:justify">In machine learning, a confusion matrix (also known as an error matrix) is a specific table layout that allows visualization of the performance of a supervised learning algorithm. Every row in the matrix represents instances in a predicted class while each column represents instances in an actual class. In this project, we use the jet colormap for the confusion matrix where the spectrum of colors ranges from dark blue to light blue to green to yellow to orange to dark red.</p>
+
+<h3>No implementation</h3>
+<p style="text-align:justify">In the given starter code, we randomly guess the category of each test image without implementing anything. Since we have 15 categories, the chances of classifying a scene correctly is 1/15 = 6.67%. Thus, chance performance is ~7%. On running the starter code, I got an accuracy of 0.068 i.e. 6.8% in 1.690404 seconds.</p>
+<form><center>
+	<input type="button" value="View Results" onclick="window.location.href='0.068/no implementation.html'" />
+</center></form>
+
+<br>
+<h3>Part 1: Tiny images representation and nearest neighbor classifier</h3>
+<br>
+<h4>A] Tiny images</h4>
+
+<p style="text-align:justify">The "tiny image" feature is one of the simplest possible image representations. Each image is resized to a small, fixed resolution (generally 16x16). It works slightly better if the tiny image is made to have zero mean and unit length. This is not a particularly good representation, because it discards all of the high frequency image content and is not especially invariant to spatial or brightness shifts. We use tiny images as a baseline.</p>
+
+<h4>Algorithm</h4>
+<ol>
+<li>Read the image.</li>
+<li>Resize and reshape the image.</li>
+<li>Extract image features.</li>
+<li>To increase performance, make the tiny images zero mean and unit length.</li>
+<li>Return tiny image features.</li>
+</ol>
+
+<h4>B] Nearest neighbor Classifier</h4>
+
+<p style="text-align:justify">The k-nearest neighbors algorithm (k-NN) is a non-parametric method used for classification and regression. In this project, we use the algorithm for classification purposes. The input consists of the k closest training examples in the feature space. The output is a class membership. An object is classified by a majority vote of its neighbors, with the object being assigned to the class most common among its k nearest neighbors.  When tasked with classifying a test feature into a particular category, the algorithm finds the "nearest" training example using a suitable metric, and assigns the test case the label of that nearest training example. The nearest neighbor classifier has many desirable features -- it requires no training, it can learn arbitrarily complex decision boundaries, and it trivially supports multiclass problems. It is quite vulnerable to training noise, though, which can be alleviated by voting based on the K nearest neighbors. Nearest neighbor classifiers also suffer as the feature dimensionality increases, because the classifier has no mechanism to learn which dimensions are irrelevant for the decision.</p>
+
+<h4>Algorithm</h4>
+<ol>
+<li>Create an empty matrix for predicted_categories.</li>
+<li>Use vl_alldist2() function to compute pairwise distance matrix. This function supports different distance metrics like L0, L1, L2, LINF, CHI2 and HELL.</li>
+<li>We use sort() for n nearest neighbors.</li>
+</ol>
+
+<h4>Analysis</h4>
+<img src="tiny_nn_analysis.png" width="35%"/>
+
+<p>The best result obtained (Normalized tiny image features + nearest neighbor classifier having 23% accuracy in 16.75 sec) is shown below:</p>
+<form><center>
+	<input type="button" value="View Results" onclick="window.location.href='0.230/tiny nn norm.html'" />
+</center></form>
+<br>
+
+<h3>Part 2: Bag of SIFT representation and nearest neighbor classifier</h3>
+<br>
+<h4>A] Bag of SIFT</h4>
+
+<h5>a) Vocabulary of words</h5>
+
+<p style="text-align:justify">To use a more sophisticated image representation, i.e. bogs of quantized SIFT features, we first need to build a vocabulary of visual words. This can be done by sampling many local features from the training set and then clustering them with kmeans. The number of kmeans clusters is our vocabulary size and the size of our features. This code saves the built vocabulary as <i>vocab.mat</i> to avoid recomputation on future runs. It can now be loaded from the .mat file, whenever required.</p>
+
+<h4>Algorithm</h4>
+<ol>
+<li>Load images from the training dataset.</li>
+<li>Call <i>vl_dsift()</i> with a large step size to save memory and speed up clustering.</li>
+<li>Use <i>vl_kmeans()</i> with sift features and vocab_size.</li>
+</ol>
+
+<h5>b) Bag of SIFT</h5>
+
+<p style="text-align:justify">SIFT is a very sophisticated image representation which can be used to represent the training and testing images as visual words. Many SITF descriptors can be densely sampled for each image. We can then count the number of SIFT descriptors that fall into each cluster in the visual word vocabulary. This can be done by finding the nearest neighbor kmeans centroid for every SIFT feature. We can then generate a histogram with dimensions equal to vocab size, where each bin counts how many times a SIFT descriptor was assigned to that cluster. The histogram should then be normalized so that image size does not dramatically change the bag of feature magnitude.</p>
+
+<h4>Algorithm</h4>
+<ol>
+<li>Create an empty SIFT matrix.</li>
+<li>Iterate over number of rows in image_paths.</li>
+<li>Compute sift features using <i>vl_dsift()</i>. A smaller step size will result in more dense sampling, but the time taken will be more. Hence to reduce time, we use a larger step size. We also use a 'fast' parameter for faster computation.</li>
+<li>Use <i>vl_kmeans()</i> with sifts and vocab_size.</li>
+</ol>
+
+<h4>B] Nearest neighbor Classifier</h4>
+
+<p style="text-align:justify">This implementation remains same as in Part 1.</p>
+
+<h4>Analysis: vary distance metric</h4>
+
+
+	Distance Metric: L2	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Accuracy: 52.3%		&nbsp;&nbsp;&nbsp;&nbsp;
+	Time consumed: 819.64 sec 	&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="View Results" onclick="window.location.href='0.523 sift nn/index.html'" />
+
+	<br>
+
+	Distance Metric: CHI2	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Accuracy: 52.5%		&nbsp;&nbsp;&nbsp;&nbsp;
+	Time consumed: 942.60 sec 	&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="View Results" onclick="window.location.href='0.525 sift nn chi2/index.html'" />
+
+<br><br>
+
+<h3>Part 3: Bag of SIFT representation and linear SVM classifier</h3>
+<br>
+
+<h4>A] Bag of SIFT</h4>
+<p style="textx-align:justify">This implementation remains same as in Part 1.</p>
+
+<h4>B] Support vector machine (SVM) classifier</h4>
+
+<p style="text-align:justify">A support vector machine (SVM) is a supervised machine learning model with associated learning algorithms that analyze data which can be used for classification. Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. SVMs are effective in high dimensional spaces and when number of dimensions is greater than the number of samples. With SVMs, different Kernel functions can be specified for the decision function. We explore this property later on in the project. We can also customize kernels.</p>
+
+<h4>Algorithm</h4>
+<ol>
+<li>Find out the unique category labels and their count.</li>
+<li>Set a parameter <i>lambda</i> that can be fine tuned later for improved performance.</li>
+<li>In a loop, use the <i>strcmp()</i> function that tells you which indices in train_labels match a particular category. This is then used to create the binary labels for each SVM training task.</li>
+<li>We then use the <i>vl_svmtrain()</i> function that trains linear SVMs based on training samples, binary labels, and <i>lambda</i> which regularizes the linear classifier.</li>
+<li>We then run a loop for the test image features and predict the categories, using the SVM we trained in the previous step.</li>
+</ol>
+
+<h4>Analysis: vary step size and distance metrics</h4>
+<form><center>
+	<b>Step size: 3</b>	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Distance Metric: L2	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Accuracy: 69.1%		&nbsp;&nbsp;&nbsp;&nbsp;
+	Time consumed: 2157.03 sec 	&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="View Results" onclick="window.location.href='0.691/index.html'" />
+</center></form>
+<form><center>
+	<b>Step size: 5</b>	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Distance Metric: L2	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Accuracy: 66.0%		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Time consumed: 845.77 sec 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="View Results" onclick="window.location.href='0.660/index.html'" />
+</center></form>
+<br>
+<form><center>
+	<b>Step size: 3</b>	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Distance Metric: CHI2	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Accuracy: 68.7%		&nbsp;&nbsp;&nbsp;&nbsp;
+	Time consumed: 2486.17 sec 	&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="View Results" onclick="window.location.href='0.687/index.html'" />
+</center></form>
+<form><center>
+	<b>Step size: 5</b>	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Distance Metric: CHI2	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Accuracy: 65.6%		&nbsp;&nbsp;&nbsp;&nbsp;
+	Time consumed: 939.69 sec 	&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="View Results" onclick="window.location.href='0.656/index.html'" />
+</center></form>
+<br>
+
+<h4>Analysis: vary lambda with step-size=5, vocab_size=200, distance metric=CHI2</h4>
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td align="center" valign="center">
+				<b>Lambda</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Accuracy</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Time consumed in seconds</b>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.00001
+			</td>
+			<td align="center" valign="center">
+				66.10%
+			</td>
+			<td align="center" valign="center">
+				950.68
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.0001
+			</td>
+			<td align="center" valign="center">
+				69.10%
+			</td>
+			<td align="center" valign="center">
+				956.36
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.001
+			</td>
+			<td align="center" valign="center">
+				61.20%
+			</td>
+			<td align="center" valign="center">
+				955.33
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.01
+			</td>
+			<td align="center" valign="center">
+				51.30%
+			</td>
+			<td align="center" valign="center">
+				984.44
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.1
+			</td>
+			<td align="center" valign="center">
+				36.90%
+			</td>
+			<td align="center" valign="center">
+				499.19
+			</td>
+		</tr>
+	</tbody>
+</table>	
+
+<h4>Analysis: vary lambda with step-size=5, vocab_size=200, distance metric=L2</h4>
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td align="center" valign="center">
+				<b>Lambda</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Accuracy</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Time consumed in seconds</b>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.00001
+			</td>
+			<td align="center" valign="center">
+				66.0%
+			</td>
+			<td align="center" valign="center">
+				841.23
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.0001
+			</td>
+			<td align="center" valign="center">
+				64.50%
+			</td>
+			<td align="center" valign="center">
+				840.53
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.001
+			</td>
+			<td align="center" valign="center">
+				62.10%
+			</td>
+			<td align="center" valign="center">
+				839.33
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.01
+			</td>
+			<td align="center" valign="center">
+				59.87%
+			</td>
+			<td align="center" valign="center">
+				840.27
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				0.1
+			</td>
+			<td align="center" valign="center">
+				58.35%
+			</td>
+			<td align="center" valign="center">
+				822.63
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<br>
+
+Observations:
+<br>
+<img src="lambda vs dm.png" alt="description">
+<br>
+
+<br>
+
+<h3>Graduate Extra Credits</h3>
+
+<b>Note:</b>
+<p style="text-align:justify">
+<ol>
+<li>Since it takes more time to run the code with vocab_size = 200, for extra credits implementation, I consider vocab_size=100.</li>
+<li>Step size in bag of sifts = 5 unless mentioned otherwise.</li>
+<li><i>Lambda</i> = 0.00001 unless mentioned otherwise.</li>
+</ol>
+</p>
+
+
+<h4>1] Feature representation extra credit (8 points)</h4>
+<h5>a) Experiment with features at multiple scales: sampling features from different levels of a Gaussian pyramid</h5>
+
+<p style="text-align:justify">Feature scaling is a method used to standardize the range of independent variables or features of data. In data processing, it is also known as data normalization and is generally performed during the data preprocessing step. In this project, I experiment by sampling features from different levels of a Gaussian pyramid as suggested in the project prompt.</p>
+
+<h5>i. Using inbuilt function <i>impyramid()</i></h5>
+<p style="text-align:justify">I used the inbuilt function in MATLAB, <i>impyramid()</i> to generate different levels of a Gaussian pyramid before sampling them in get_bag_of_sifts.m file. This function allows us to pass a parameter that can be set to 'reduce' or 'expand' so that we can indicate if we want to downsample or upsample the image that was read in. The observations are documented below:</p>
+<h5>Analysis</h5>
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td align="center" valign="center">
+				<b>Operation</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Accuracy</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Time consumed in seconds</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Results</b>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				Reduce by 1 level
+			</td>
+			<td align="center" valign="center">
+				64.7%
+			</td>
+			<td align="center" valign="center">
+				508.28
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='0.647 reduce1/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				Reduce by 2 levels
+			</td>
+			<td align="center" valign="center">
+				64.5%
+			</td>
+			<td align="center" valign="center">
+				504.26
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='0.645 reduce2/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				Expand by 1 level
+			</td>
+			<td align="center" valign="center">
+				64.3%
+			</td>
+			<td align="center" valign="center">
+				781.59
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='0.643 expand1/index.html'" />
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="text-align:justify">I did not record the time taken for expansion beyond 1 level because expansion to the 1st level itself took up a huge amount of time. On the other had, reduction greatly reduced the accuracy noticeably, which is why I didn't analyse reduction beyond 2 levels. Thus, in all, I experimented with a pyramid with 4 levels.</p>
+
+<h5>ii. Using inbuilt functions <i>imgaussfilt()</i> and <i>imresize()</i></h5>
+<p style="text-align:justify">I used the inbuilt functions <i>imgaussfilt()</i> and <i>imresize()</i> in MATLAB, to manually generate different levels of a Gaussian pyramid before sampling them in get_bag_of_sifts.m file. This function allows us to pass a parameter that can be set to the scale we want to resize the image to. Thus we can indicate if we want to downsample (i.e. scale factor < 1) or upsample (i.e. scale factor > 1) the image that was read in. The observations are documented below:</p>
+<h5>Analysis</h5>
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td align="center" valign="center">
+				<b>Operation</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Scale factor</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Accuracy</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Time consumed in seconds</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Results</b>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				Reduce
+			</td>
+			<td align="center" valign="center">
+				0.90
+			</td>
+			<td align="center" valign="center">
+				53.3%
+			</td>
+			<td align="center" valign="center">
+				449.31
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='0.533 red1/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				Reduce
+			</td>
+			<td align="center" valign="center">
+				0.81
+			</td>
+			<td align="center" valign="center">
+				54.4%
+			</td>
+			<td align="center" valign="center">
+				479.98
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='0.544 red2/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				Expand
+			</td>
+			<td align="center" valign="center">
+				1.11
+			</td>
+			<td align="center" valign="center">
+				<!-- 54.2% -->
+				55.6%
+			</td>
+			<td align="center" valign="center">
+				<!-- 513.70 -->
+				531.66
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='exp1/index.html'" />
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<br>
+
+<h4>1] Feature representation extra credit</h4>
+<h5>b) Add additional, complementary features: GIST descriptors</h5>
+
+<p style="text-align:justify">Bag of words model does not capture spatial information. Gist descriptors for an image work by partitioning the image into finer sub-regions and computing the histogram of local features found inside each sub-region. I implemented the model to generate GIST descriptors on the image that we read in. This code is based on the paper "Modeling the shape of the scene: a holistic representation of the spatial envelope" by <i>Aude Oliva</i> and <i> Antonio Torralba</i>. The code makes use of the <i>LMgist()</i> function. The observations are documented below:</p>
+
+<h5>Algorithm</h5>
+<ol>
+	<li>Read in every image from image_paths</li>
+	<li>Size the image to [256 256]</li>
+	<li>Set orientations per scale, in this case it is [8 8 8 8]</li>
+	<li>Pass the preprocessed data to the LMgist() function</li>
+	<li>Reshape the result returned by the function</li>
+	<li>Assign it to image features vector</li>
+</ol>
+
+<h5>i. GIST + Nearest neighbor</h5>
+
+<h5>Analysis</h5>
+
+Accuracy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 56.6%
+<br>
+Time consumed&nbsp;&nbsp;: 930.86 sec
+<form>
+	<input type="button" value="View Results" onclick="window.location.href='0.566 gist nn/index.html'" />
+</form>
+
+<br>
+
+<h5>ii. GIST + SVM</h5>
+<h5>Analysis</h5>
+
+Accuracy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 67.6%
+<br>
+Time consumed&nbsp;&nbsp;: 921.28 sec
+<form>
+	<input type="button" value="View Results" onclick="window.location.href='0.676 gist svm/index.html'" />
+</form>
+
+
+<!-- <h5>iii. (SIFT + GIST) + Nearest neighbor</h5>
+<h5>Analysis**************************</h5>
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td align="center" valign="center">
+				<br>
+				<b>Operation</b>
+			</td>
+			<td align="center" valign="center">
+				<br>
+				<b>Accuracy</b>
+			</td>
+			<td align="center" valign="center">
+				<br>
+				<b>Time consumed in seconds</b>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				<br>
+				Reduce by 1 level
+			</td>
+			<td align="center" valign="center">
+				<br>
+				0.605
+			</td>
+			<td align="center" valign="center">
+				<br>
+				198.39
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				<br>
+				Reduce by 2 levels
+			</td>
+			<td align="center" valign="center">
+				<br>
+				0.605
+			</td>
+			<td align="center" valign="center">
+				<br>
+				198.39
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				<br>
+				Expand by 1 level
+			</td>
+			<td align="center" valign="center">
+				<br>
+				0.605
+			</td>
+			<td align="center" valign="center">
+				<br>
+				198.39
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<br>
+
+<h5>iv. (SIFT + GIST) + SVM</h5>
+<h5>Analysis**************************</h5>
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td align="center" valign="center">
+				<br>
+				<b>Operation</b>
+			</td>
+			<td align="center" valign="center">
+				<br>
+				<b>Accuracy</b>
+			</td>
+			<td align="center" valign="center">
+				<br>
+				<b>Time consumed in seconds</b>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				<br>
+				Reduce by 1 level
+			</td>
+			<td align="center" valign="center">
+				<br>
+				0.605
+			</td>
+			<td align="center" valign="center">
+				<br>
+				198.39
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				<br>
+				Reduce by 2 levels
+			</td>
+			<td align="center" valign="center">
+				<br>
+				0.605
+			</td>
+			<td align="center" valign="center">
+				<br>
+				198.39
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				<br>
+				Expand by 1 level
+			</td>
+			<td align="center" valign="center">
+				<br>
+				0.605
+			</td>
+			<td align="center" valign="center">
+				<br>
+				198.39
+			</td>
+		</tr>
+	</tbody>
+</table> -->
+
+<p style="text-align:justify">Additionally, one could try concatenating SIFT and GIST features before passing on the image features to the classifier.</p>
+
+<br>
+
+<h4>2] Feature quantization and bag of words extra credit (5 points)</h4>
+<h5>a) Use of a more sophisticated feature encoding schemes analyzed in the comparative study of Chatfield et al.: Fisher</h5>
+
+<p style="text-align:justify">One possible improvement that can be made to the bag of words model is to use a more sophisticated encoding scheme such as Fisher encoding. The distribution of training feature vectors is first modeled as a Gaussian Mixture Model (GMM) with K clusters. Next, the training and test features are encoded based on the computed priors, means, and covariances for each cluster. Finally, a linear SVM classifier is trained based on the Fisher vectors and used to predict class labels. I implemented the Fisher kernel, which is a more more sophisticated feature encoding schemes analyzed in the comparative study of Chatfield et al. For this purpose, I have used the two functions <i>vl_gmm()</i> and <i>vl_fisher</i>, offered in the VL_Feat package. The observations are documented below:</p>
+
+<h5>Algorithm</h5>
+<ol>
+	<li>Follow same steps as in get_bags_of_sifts till extraction of SIFT features.</li>
+	<li>Call vl_gmm() function and generate means, covariances and  priors.</li>
+	<li>In suitable format, assign them to stats, a variable to denote statistics.</li>
+	<li>Generate stats.mat and load it in get_fisher_encoding()</li>
+	<li>After preprocessing the data from stats.mat, call vl_fisher() function</li>
+	<li>Assign the result returned to image features vector</li>
+</ol>
+
+<h5>Analysis</h5>
+
+Vocabulary size: 100
+Accuracy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 80.1%
+<br>
+Time consumed&nbsp;&nbsp;: 578.05 sec
+<form>
+	<input type="button" value="View Results" onclick="window.location.href='fisher 100/index.html'" />
+</form>
+
+Vocabulary size: 50
+Accuracy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 79.6%
+<br>
+Time consumed&nbsp;&nbsp;: 305.49 sec
+<form>
+	<input type="button" value="View Results" onclick="window.location.href='fisher 50/index.html'" />
+</form>
+
+Vocabulary size: 25
+Accuracy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 75.7%
+<br>
+Time consumed&nbsp;&nbsp;: 196.38 sec
+<form>
+	<input type="button" value="View Results" onclick="window.location.href='fisher 25/index.html'" />
+</form>
+
+<br>
+
+<h4>3] Classifier extra credit (3 points)</h4>
+<h5>a)  Train the SVM with more sophisticated kernels using a different SVM package than VL feat's linear SVM: RBF</h5>
+
+<p style="text-align:justify">In this section, I have implemented the RBF (radial basis function) kernel that is based on the paper "Training a Support Vector Machine in the Primal" by <i>O. Chapelle</i>. The Radial basis function kernel, also called the RBF kernel, or Gaussian kernel, is a kernel that is in the form of a radial basis function (more specifically, a Gaussian function). My code is present in my_svm.m file and it has 2 supporting files, compute_kernel.m and primal_svm.m . The observations are documented below:</p>
+
+<h5>SIFT + Modified SVM</h5>
+
+<h5>Algorithm</h5>
+<ol>
+	<li>Read in the unique train labels and categories.</li>
+	<li>Lamda was set to 0.00001.</li>
+	<li>Set kernel type and sigma. I set kernel type to rbf and sigma to 1</li>
+	<li>Call compute_kernel()</li>
+	<li>Train the function based on training data images and labels using the primal SVM by giving a call to primal_svm()</li>
+	<li>Test the model similarly, using the test dataset and assign the result to predicted_categories</li>
+</ol>
+
+<h5>Analysis (lambda=0.00001)</h5>
+
+Accuracy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 65.2%
+<br>
+Time consumed&nbsp;&nbsp;: 501.41 sec
+<form>
+	<input type="button" value="View Results" onclick="window.location.href='my svm/index.html'" />
+</form>
+
+<br>
+
+<h4>4] Experimental design extra credit (3 points)</h4>
+<h5>a) Experiment with many different vocabulary sizes and report performance: 25, 50, 100, 250, 500, 1000, 10000</h5>
+
+<p style="text-align:justify">I am experimenting by varying the vocab size. The observations are documented below:</p>
+
+<h5>SIFT + SVM</h5>
+<h5>Analysis</h5>
+The time consumed is inclusive of the time taken to build the vocab.mat file.
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td align="center" valign="center">
+				<b>Vocabulary size</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Accuracy</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Time consumed in seconds</b>
+			</td>
+			<td align="center" valign="center">
+				<b>Results</b>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				25
+			</td>
+			<td align="center" valign="center">
+				64.6%
+			</td>
+			<td align="center" valign="center">
+				516.96
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='25/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				50
+			</td>
+			<td align="center" valign="center">
+				65.0%
+			</td>
+			<td align="center" valign="center">
+				518.56
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='50/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				100
+			</td>
+			<td align="center" valign="center">
+				64.5%
+			</td>
+			<td align="center" valign="center">
+				502.50
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='100/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				250
+			</td>
+			<td align="center" valign="center">
+				65.1%
+			</td>
+			<td align="center" valign="center">
+				524.33
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='250/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				500
+			</td>
+			<td align="center" valign="center">
+				65.0%
+			</td>
+			<td align="center" valign="center">
+				546.50
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='500/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				1000
+			</td>
+			<td align="center" valign="center">
+				64.4%
+			</td>
+			<td align="center" valign="center">
+				528.60
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='1000/index.html'" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="center">
+				10000
+			</td>
+			<td align="center" valign="center">
+				64.4%
+			</td>
+			<td align="center" valign="center">
+				593.64
+			</td>
+			<td align="center" valign="center">
+					<input type="button" value="View Results" onclick="window.location.href='10000/index.html'" />
+			</td>
+		</tr>
+	</tbody>
+</table>
+I did not try varying vocab_size beyond 10000 because accuracy seemed to not increase beyond 65% and the computation time was increasing significantly.<br>
+Standard deviation in accuracy = 0.3078<br>
+Standard deviation in time consumed = 29.8609 seconds
+<br><br>
+Observations:
+<br>
+<img src="acc vs vocab.png" alt="description">
+<br>
+<img src="time vs vocab.png" alt="description">
+
+<br>
+
+<h3>Observations</h3>
+
+<ol>
+	<li>Nearest neighbor classifier works better with normalization, and L1 distance metric.</li>
+	<li>Bag of SIFT with nearest neighbor classifier works slightly better with CHI2 distance metric but takes more time for computation.</li>
+	<li>Bag of SIFT with SVM works better for a low stepsize e.g. 3 with L2 distance metric but computation time required is too high.</li>
+	<li>When using impyramid(), both accuracy and time taken decrease on using the 'reduce' parameter. However on using 'expand', accuracy decreased further although time taken increased.</li>
+	<li>When using imgaussfilt() with imresize(), on reducing the scale factor, both accuracy and time taken increased. On increasing the scale factor, accuracy improved and time taken increased significantly.</li>
+	<li>GIST descriptors perform comparatively better than SIFT in terms of accuracy and time taken, because SIFT compromises on time to increase accuracy.</li>
+	<li>Fisher kernel improved the performance by significantly increasing the accuracy in a much smaller time period.</li>
+	<li>On using RBF kernel, I achieved almost the same accuracy as with normal SVM, but in a much smaller time period.</li>
+	<li>While documenting the effect of vocabulary size on accuracy and time, anomalies were observed in accuracy for vocab_size = 100 and vocab_size = 1000. Similarly, anomalies were observed in time taken for vocab_size = 100 and vocab_size = 1000. This matched what the professor spoke about in class, that at some vocabulary sizes we might find anomalies in the general trend.</li>
+</ol>
+
+<br>
+<br>
+</body>
+</html>

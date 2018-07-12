@@ -1,0 +1,412 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Nidhi Menon</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2><b>Project 2: Local Feature Matching</b></h2>
+
+<!-- <div style="float: right; padding: 20px">
+<img src="placeholder.jpg" />
+<p style="font-size: 14px">Example of a right floating element.</p>
+</div> -->
+
+<p  style="text-align:justify">The goal of this assignment is to create a local feature matching algorithm. This assignment is divided into three parts. In the first part, we detect the interest points in an image using a function <i>get_interest_points()</i>. In the second part, we carry out local feature description using a function <i>get_features()</i>.The third part does the feature matching using a function <i>match_features()</i>.</p>
+
+<p  style="text-align:justify">Feature detection is a low-level image processing operation. It is the act of identifying image points, curves, or regions that are used to make local decisions of some kind. Feature Matching is the operation carried out to find common features in two images with possibly different scale, orientation, illumination etc. This has applications in image alignment (eg. panorama mosaics), robot navigation, face detection, etc.</p>
+
+<h3>Part 1: Interest point detection</h3>
+
+<p  style="text-align:justify">Interest point detection refers to the detection of interest points for subsequent processing. An interest point is a point in an image which has a well-defined position in image space and is stable under local and global perturbations in the image domain such as illumination variations. The local image structure around the interest point is rich in terms of local information contents, such that the use of interest points simplify further processing in the vision system.</p>
+
+<p	style="text-align:justify"> As part of this project, I have implemented the <i>get_interest_points()</i> function in the <i>get_interest_points.m</i> file. The threshold value is not fixed, but computed. The value of alpha was varied and experimented and the optimum result was obtained for alpha=0.09. The algorithm of the project is as follows:</p>
+
+<h4>Algorithm with code snippets</code></h4>
+<ol>
+<li>Take derivatives of a Gaussian filter.</li>
+<pre><code>
+Small_Gaussian=fspecial('gaussian',3,1);
+Large_Gaussian=fspecial('gaussian',9,2);
+
+%derivatives of Gaussian
+[gx,gy]=gradient(Small_Gaussian);
+</code></pre>
+<li>Compute horizontal and vertical derivatives of the image <i>Ix</i> and <i>Iy</i> by convolving image with Gaussian derivatives.</li>
+<pre><code>
+%horizontal and vertical derivatives of image Ix and Iy by convolving original image with derivatives of Gaussian
+Ix=imfilter(image,gx);
+Iy=imfilter(image,gy);
+</code></pre>
+<li>Compute the three images: <i>Ixx, Iyy, Ixy</i></li>
+<pre><code>
+%computing Ixx, Iyy, IxIy
+Ixx=Ix.*Ix;
+Iyy=Iy.*Iy;
+Ixy=Ix.*Iy;
+</code></pre>
+
+<li>Convolve each of the three images with a large Gaussian filter.</li>
+<pre><code>
+%convolving each image with a larger Gaussian
+G_Ixx=imfilter(Ixx,Large_Gaussian);
+G_Iyy=imfilter(Iyy,Large_Gaussian);
+G_IxIy=imfilter(Ixy,Large_Gaussian);
+</code></pre>
+<li>Compute a scalar interest measure.</li>
+<li> Find local maxima above a certain threshold and report them as detected feature
+point locations.</li>
+
+<pre><code>
+%harris detector
+alpha=0.09;
+det=(G_Ixx.*G_Iyy)-(G_IxIy.*G_IxIy);
+trace=G_Ixx+G_Iyy;
+har=det-alpha.*(trace.*trace);
+
+R=har;
+R(1:feature_width,:)=0;
+R(end-feature_width:end,:)=0;
+R(:,1:feature_width)=0;
+R(:,end-feature_width:end)=0;
+
+Max=max(max(R));
+threshold=R>(Max/1000);
+R=R.*threshold;
+max_R=colfilt(R,[feature_width/2 feature_width/2],'sliding',@max);
+R=R.*(R==max_R); % only keep max
+
+[y,x]=find(R>0);
+confidence=R(R>0);
+</code></pre>
+
+<br>
+
+<h3>Part 2: Local feature description</h3>
+
+<p  style="text-align:justify">Feature detection refers to methods that aim at computing abstractions of image information and making local decisions at every image point whether there is an image feature of a given type at that point or not. It is a low-level image processing operation.</p>
+
+<p  style="text-align:justify">In this project, we implement the scale-invariant feature transform (SIFT), which is an algorithm in computer vision to detect and describe local features in images. The key properties that the descriptor has are:</p>
+<ol>
+	<li>A 4x4 grid of cells, each feature_width/4.</li>
+	<li>Each cell has a histogram of the local distribution of gradients in 8 orientations. Appending these histograms together givea 4 x 4 x 8 = 128 dimensions.</li>
+	<li>Each feature vector is normalized to unit length.</li>
+</ol>
+
+<p style="text-align:justify"> 	In this project, I applied derivatives of the Gaussian filter to the image to calculate <i>Ix</i> and <i>Iy</i>. These values were then used to calculate magnitude and direction. The functioning of SIFT has been imitated and finally the feature vector has been normalized to unit length.</p>
+
+<h4>Algorithm with code snippets</code></h4>
+	<ol>
+		<li>Take derivatives of Gaussian filter.</li>
+		<li>Calculate image derivatives <i>Ix</i> and <i>Iy</i>.</li>
+		<li>Calculate magnitude and direction.</li>
+		<li>Process each interest point.</li>
+		<li>Normalize the feature vector.</li>
+	</ol>
+
+<pre><code>
+	...%Gaussian derivatives are applied to image
+
+	% Calculate magnitude and direction
+	magnitude=sqrt((Ix.*Ix)+(Iy.*Iy));
+	direction=mod(round(atan2(Iy,Ix)/(pi/4)),8);
+
+	for int_pt=1:length(x)
+	    x_mid=x(int_pt);
+		y_mid=y(int_pt);
+
+		%Create margins for grid
+		grid=fw/4;
+		x_margin=x_mid-grid*2;
+		y_margin=y_mid-grid*2;
+
+		Mag=magnitude(y_margin:y_margin+fw-1,x_margin:x_margin+fw-1);
+		Dir=direction(y_margin:y_margin+fw-1,x_margin:x_margin+fw-1);
+	    gf2=fspecial('gaussian',fw,fw/2);
+		Mag=imfilter(Mag,gf2);
+
+		for i=0:3
+		    for j=0:3
+		        new_Dir=Dir((grid*i+1):(grid*i+grid),(grid*j+1):(grid*j+grid));
+		        new_Mag=Mag((grid*i+1):(grid*i+grid),(grid*j+1):(grid*j+grid));
+		        for k=0:7
+		            win=(new_Dir==k);
+		            features(int_pt,(i*32+j*8)+k+1)=sum(sum(new_Mag(win)));
+		        end
+		    end
+		end
+
+		% Normalization as mentioned in Szeliski
+		MagSum=sum(features(int_pt,:));
+		features(int_pt,:)=features(int_pt,:)/MagSum;
+	end
+</code></pre>
+
+<br>
+
+<h3>Part 3: Feature matching</h3>
+
+<p  style="text-align:justify">Now that we have extracted features and their descriptors from a pair of images, we try to establish feature matches in the pair. Feature Matching is the operation carried out to find common features in two images with possibly different scale, orientation, illumination etc. This has applications in image alignment (eg. panorama mosaics), robot navigation, face detection, etc. Descriptors can be matched using the distance measures.</p>
+
+<p style="text-align:justify"> 	In this project, I use the Euclidean distance measure, which is the simplest form of distance measure. The features are then sorted based on their distance. The confidences are calculated based on the nearest and second nearest neighbor. The matches are then sorted again in descending order, so that the most confident onces are at the top of the list. My code works for the 100 most confident matches.</p>
+
+<h4>Algorithm with code snippets</code></h4>
+	<ol>
+		<li>Take the 2 feature vectors (feature1 and feature2) and caculate pairwise distance. I did this using pdist2().</li>
+		<li>Sort mtrix and retain euclidean distances and indices.</li>
+		<li>Find the nearest neighbors as NN1 and NN2. I divide NN2 over NN1 and then compute 1/confidences later.</li>
+		<li>Create a vector to hold sorted euclidean distances and their indices for filtered confidences.</li>
+		<li>Truncate and sort the confidences in descending order.</li>
+		<li>Return the top 100 matches.</li>
+	</ol>
+
+<pre><code>
+	Dist=pdist2(features1,features2,'euclidean');      %pdist() generates pairwise distance
+	[B,I]=sort(Dist,2);
+	NN1=B(:,1);
+	NN2=B(:,2);
+	confidences=NN1./NN2;
+	i=find(confidences);
+	s=size(i);
+	matches=zeros(s(1),2);
+	matches(:,1)=i;
+	matches(:,2)=I(i);
+	confidences=1./confidences(i);
+
+	[confidences,ind]=sort(confidences,'descend');
+	matches=matches(ind,:);
+	matches=matches(1:100,:);
+</code></pre>
+
+<br>
+
+<div style="clear:both">
+
+<h3>Results in a table</h3>
+
+<table border=1>
+<tr>
+<td align="center" valign="center">
+<img src="nd_vis_dots.jpg" width="33%"/>
+<img src="nd_vis_arrows.jpg" width="33%"/>
+<img src="nd_eval.jpg" width="33%"/>
+<br>
+Notre-Dame (89% accuracy)
+</td>
+</tr>
+
+<tr>
+<td  align="center" valign="center">
+<img src="mr_vis_dots.jpg" width="33%"/>
+<img src="mr_vis_arrows.jpg"  width="33%"/>
+<img src="mr_eval.jpg" width="33%"/>
+<br>
+Mount Rushmore (100% accuracy)
+</td>
+</td>
+</tr>
+
+<tr>
+<td  align="center" valign="center">
+<img src="eg_vis_dots.jpg" width="33%"/>
+<img src="eg_vis_arrows.jpg"  width="33%"/>
+<img src="eg_eval.jpg" width="33%"/>
+<br>
+Episcopal Gaudi (6% accuracy)
+</td>
+</td>
+</tr>
+</table>
+
+<br>
+
+<div style="clear:both" >
+<h3>Extra: Bells and Whistles</h3>
+<p  style="text-align:justify">
+I tried modifying the <i>match_features()</i> function in the following 2 ways:</p>
+<ol>
+<li>PCA </li>
+<p style="text-align:justify">PCA stands for Principle Component Analysis. Its goal is to extract the important information, to represent it as a set of new orthogonal variables called principal components, and to display the pattern of similarity of the observations and of the variables as points. In this implementation, I create a lower dimensional descriptor that is still accurate enough. Descriptor is 64 dimensions instead of 128 dimensions, although the accuracy decreased by a small amount.
+<br>
+Using PCA, I got the following accuracy for the images for various distance measures:<br>
+1. Notre-Dame:<br>
+	(a) Euclidean: 82%
+	(b) Minkowski: 82%
+	(c) Chebychev: 60%
+	(d) Cityblock: 88%
+<br>
+2. Mount Rushmore:<br>
+	(a) Euclidean: 88%
+	(b) Minkowski: 88%
+	(c) Chebychev: 54%
+	(d) Cityblock: 92%
+<br>
+3. Episcopal Gaudi:<br>
+	(a) Euclidean: 1%
+	(b) Minkowski: 1%
+	(c) Chebychev: 1%
+	(d) Cityblock: 0%
+	
+<li>KD-tree implementation</li>
+<p>A k-dimensional tree s a space-partitioning data structure for organizing points in a k-dimensional space. It aids in carrying out the knn_search between the feature vectors in the feature matching function.
+<br>
+Using kd-tree, I got the following accuracy for the images for various distance measures:<br>
+1. Notre-Dame:<br>
+	(a) Euclidean: 89%
+	(b) Minkowski: 89%
+	(c) Chebychev: 81%
+	(d) Cityblock: 92%
+<br>
+2. Mount Rushmore:<br>
+	(a) Euclidean: 100%
+	(b) Minkowski: 100%
+	(c) Chebychev: 92%
+	(d) Cityblock: 100%
+<br>
+3. Episcopal Gaudi:<br>
+	(a) Euclidean: 6%
+	(b) Minkowski: 6%
+	(c) Chebychev: 5%
+	(d) Cityblock: 7%
+	
+<h3>Takeaways</h3>
+
+<p style="text-align:justify">
+	1. Episcopal Gaudi has the worst accuracy irrespective of the method implemented. This could be due to variance in image scale or illumination.
+	<br>
+	2. Euclidean and minkowski distance measures always produced the same results for me.
+	<br>
+	3. Cityblock distance measure almost always gave the highest accuracy.</p>
+</div>
+</body>
+</html>
